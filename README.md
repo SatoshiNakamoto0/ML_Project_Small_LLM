@@ -30,11 +30,15 @@ Ziel ist die Analyse, wie gut unterschiedliche Modellfamilien numerische Ratings
 
 ## Inhalt des Repositories
 
-### Wichtige Dateien
+### Enthaltene Dateien
 
 - `ML_Analysis_Project_Airline_Reviews.ipynb` – Hauptnotebook (komplette Pipeline)
-- `Abgabe_Gilbert_Jack_ML_Hausarbeit_WS2025-26.pdf` – finale Hausarbeit
-- `README.md` – diese Datei
+- `README.md` – Projektdokumentation
+- `BA_AirlineReviews.csv` – Datensatz (CSV)
+- `coverage_vs_mae_test.png` – Trade-off-Grafik (Coverage vs. MAE)
+- `efficiency_vs_mae_test.png` – Trade-off-Grafik (Effizienz vs. MAE)
+
+**Hinweis:** Das Paper (PDF) ist **nicht** Bestandteil dieses Repositories.
 
 ### Automatisch erzeugte Ordner (durch das Notebook)
 
@@ -42,7 +46,7 @@ Das Notebook legt bei Ausführung automatisch eine Projektstruktur an:
 
 - `data/raw/` – Rohdaten (CSV)
 - `data/processed/` – bereinigte Daten + Splits
-- `data/features/` – Embeddings/Feature-Caches
+- `data/features/` – Embeddings / Feature-Caches
 - `models/` – trainierte Modelle
 - `reports/` – Metriken, Predictions, Tabellen, Exporte
 - `figs/` – Abbildungen
@@ -105,20 +109,20 @@ Zusätzlich muss **Ollama** lokal laufen und das Modell **`phi3:mini`** installi
 
 ## Reproduzierbarkeit / Versionen
 
-- Das Projekt nutzt Hugging Face `transformers`; in der Hausarbeit wird die Dokumentation auf die verwendete Version referenziert.
 - Beim Start des Notebooks wird ein Environment-Snapshot nach `reports/environment.json` geschrieben.
 - Ein `config.json` mit zentralen Parametern wird nach `reports/config.json` geschrieben.
+- Fixierte Seeds und persistierte Splits sorgen für reproduzierbare Auswertungen.
 
 ---
 
 ## Ausführung (empfohlener Ablauf)
 
-1. **CSV ablegen**  
-   Lege `BA_AirlineReviews.csv` unter `data/raw/` ab  
-   *(oder setze `AIRLINE_CSV_PATH`)*
+1. **CSV ablegen**
+   - `BA_AirlineReviews.csv` unter `data/raw/` ablegen
+   - alternativ `AIRLINE_CSV_PATH` setzen
 
-2. **Notebook öffnen**  
-   `ML_Analysis_Project_Airline_Reviews.ipynb`
+2. **Notebook öffnen**
+   - `ML_Analysis_Project_Airline_Reviews.ipynb`
 
 3. **Zellen der Reihe nach ausführen**
    - Datenimport & Bereinigung
@@ -140,6 +144,7 @@ Zusätzlich muss **Ollama** lokal laufen und das Modell **`phi3:mini`** installi
 ## Pipeline im Notebook
 
 ### 1) Datenvorbereitung
+
 - Robustes CSV-Parsing (Delimiter/Encoding-Erkennung)
 - Auswahl der Zielspalte (Rating)
 - Auswahl/Erkennung der Textspalten
@@ -150,6 +155,7 @@ Zusätzlich muss **Ollama** lokal laufen und das Modell **`phi3:mini`** installi
   - `data/processed/reviews_processed.csv`
 
 ### 2) Splits
+
 - Stratified Split über Rating-Bins (`1–3`, `4–7`, `8–10`)
 - Standardmäßig:
   - Train: 64%
@@ -166,21 +172,25 @@ Erzeugte Dateien:
 ### 3) Modelle
 
 #### A) TF-IDF + Ridge
+
 - Grid-Search auf dem Validation-Split
-- Finale Auswertung auf Test/Split `S`
+- Finale Auswertung auf Test / Split `S`
 - Speichert Modell als `.joblib`
 
 #### B) MiniLM + Ridge
+
 - `all-MiniLM-L6-v2` Embeddings (mit Cache)
 - Ridge-Regressor auf Embeddings
 - Embeddings werden als `.npz` gespeichert (wiederverwendbar)
 
 #### C) DistilBERT-Regressor
+
 - `distilbert-base-uncased`
 - Regressionskopf (`num_labels=1`)
 - Early Stopping + gespeicherte Modellartefakte im `models/`-Ordner
 
 #### D) Phi-3 Mini (lokal via Ollama)
+
 LLM-Modi u. a.:
 - `M1_FREE`
 - `M2_JSON_PROMPT`
@@ -188,13 +198,14 @@ LLM-Modi u. a.:
 - `M3_SCHEMA_ENFORCED`
 - `M4_REPAIR`
 
-Fokus: Reliability/Validität strukturierter Ausgaben (JSON/Schema) und Coverage im Strict-Setting.
+Fokus: Reliability / Validität strukturierter Ausgaben (JSON/Schema) und Coverage im Strict-Setting.
 
 ---
 
 ## Wichtige Output-Dateien
 
 ### `reports/`
+
 Typische Ausgaben (je nach ausgeführten Notebook-Teilen):
 
 - `config.json`
@@ -212,10 +223,10 @@ Typische Ausgaben (je nach ausgeführten Notebook-Teilen):
 - `error_analysis_summary.csv`
 - `artifact_index.csv`
 - `llm_cache*.jsonl`
-- `reports/runs/...` (Sweep-/Run-spezifische Outputs)
-- `paper_exports_*` (Tabellen-/Abbildungs-Exporte für das Paper)
+- `reports/runs/...` (run-spezifische Outputs)
 
 ### `figs/`
+
 Beispielhafte Grafiken:
 - `leaderboard_mae_test.png`
 - `leaderboard_coverage_test.png`
@@ -225,7 +236,7 @@ Beispielhafte Grafiken:
 
 ---
 
-## Interpretation der Metriken (kurz)
+## Interpretation der Metriken
 
 - **MAE / RMSE**: kleiner = besser
 - **Spearman**: größer = besser
@@ -234,50 +245,32 @@ Beispielhafte Grafiken:
 
 ---
 
-## Abgabehinweise
+## Optional: `requirements.txt` erzeugen
 
-### Muss ich den Code abgeben?
-Empfehlung: **Ja** (sehr sinnvoll für Nachvollziehbarkeit / Reproduzierbarkeit).
-
-### Empfohlener Abgabeumfang (Repo)
-**Abgeben:**
-- `ML_Analysis_Project_Airline_Reviews.ipynb`
-- `README.md`
-- `Abgabe_Gilbert_Jack_ML_Hausarbeit_WS2025-26.pdf`
-- optional: zentrale Ergebnisdateien (`reports/*.csv`, `figs/*.png`)
-- optional: `requirements.txt` (sehr empfehlenswert)
-
-**Nicht zwingend abgeben (nur wenn gefordert):**
-- große Modellgewichte (`models/distilbert_*`)
-- große Embedding-Caches (`data/features/*.npz`)
-- große LLM-Caches (`reports/llm_cache*.jsonl`)
-- temporäre Run-Ordner / Zwischenstände
-
----
-
-## Empfohlene `requirements.txt` (optional)
-
-Für eine saubere Reproduktion kannst du lokal ausführen:
+Für eine saubere Reproduktion kann lokal ausgeführt werden:
 
 ```bash
 pip freeze > requirements.txt
 ```
 
-Wenn du eine schlanke Variante willst, reicht auch eine manuell gepflegte Datei mit den Kernpaketen.
+Alternativ reicht auch eine schlanke, manuell gepflegte `requirements.txt` mit den Kernpaketen.
 
 ---
 
 ## Troubleshooting
 
 ### CSV wird nicht gefunden
-Fehlermeldung wie „CSV nicht gefunden …“  
-→ Datei nach `data/raw/BA_AirlineReviews.csv` legen oder:
+
+Fehlermeldung wie „CSV nicht gefunden …“:
 
 ```bash
 export AIRLINE_CSV_PATH="/voller/pfad/zu/BA_AirlineReviews.csv"
 ```
 
+oder Datei nach `data/raw/BA_AirlineReviews.csv` legen.
+
 ### Ollama nicht erreichbar
+
 Wenn der LLM-Teil fehlschlägt:
 - prüfen, ob Ollama läuft
 - prüfen, ob `phi3:mini` installiert ist
@@ -304,7 +297,6 @@ Hausarbeit / ML-Projekt, WS 2025/26
 
 ---
 
-## Lizenz / Nutzung
+## Nutzung
 
-Nur für Studien-/Abgabezwecke im Rahmen der Lehrveranstaltung.  
-(Bei Bedarf hier eine offizielle Lizenz ergänzen, z. B. MIT.)
+Dieses Repository dient der Dokumentation und Reproduktion der Hausarbeit im Rahmen der Lehrveranstaltung (Studien-/Abgabezwecke).
